@@ -29,12 +29,6 @@ jobs:
         with:
           ref: adf_publish
 
-      - name: Checkout main for deployment scripts
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          path: source
-
       - name: Azure Login
         uses: azure/login@v3
         with:
@@ -49,7 +43,7 @@ jobs:
           azPSVersion: latest
           pwsh: true
           inlineScript: |
-            ./source/.github/scripts/PrePostDeploymentScript.Ver2.ps1 `
+            .github/scripts/PrePostDeploymentScript.Ver2.ps1 `
               -ArmTemplate "dev-ci-cd-demo-adf-y8/ARMTemplateForFactory.json" `
               -ArmTemplateParameters "dev-ci-cd-demo-adf-y8/ARMTemplateParametersForFactory.json" `
               -ResourceGroupName ${{ vars.RESOURCE_GROUP }} `
@@ -74,7 +68,7 @@ jobs:
           azPSVersion: latest
           pwsh: true
           inlineScript: |
-            ./source/.github/scripts/PrePostDeploymentScript.Ver2.ps1 `
+            .github/scripts/PrePostDeploymentScript.Ver2.ps1 `
               -ArmTemplate "dev-ci-cd-demo-adf-y8/ARMTemplateForFactory.json" `
               -ArmTemplateParameters "dev-ci-cd-demo-adf-y8/ARMTemplateParametersForFactory.json" `
               -ResourceGroupName ${{ vars.RESOURCE_GROUP }} `
@@ -100,12 +94,6 @@ jobs:
         with:
           ref: adf_publish
 
-      - name: Checkout main for deployment scripts
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          path: source
-
       - name: Azure Login
         uses: azure/login@v3
         with:
@@ -120,7 +108,7 @@ jobs:
           azPSVersion: latest
           pwsh: true
           inlineScript: |
-            ./source/.github/scripts/PrePostDeploymentScript.Ver2.ps1 `
+            .github/scripts/PrePostDeploymentScript.Ver2.ps1 `
               -ArmTemplate "dev-ci-cd-demo-adf-y8/ARMTemplateForFactory.json" `
               -ArmTemplateParameters "dev-ci-cd-demo-adf-y8/ARMTemplateParametersForFactory.json" `
               -ResourceGroupName ${{ vars.RESOURCE_GROUP }} `
@@ -145,7 +133,7 @@ jobs:
           azPSVersion: latest
           pwsh: true
           inlineScript: |
-            ./source/.github/scripts/PrePostDeploymentScript.Ver2.ps1 `
+            .github/scripts/PrePostDeploymentScript.Ver2.ps1 `
               -ArmTemplate "dev-ci-cd-demo-adf-y8/ARMTemplateForFactory.json" `
               -ArmTemplateParameters "dev-ci-cd-demo-adf-y8/ARMTemplateParametersForFactory.json" `
               -ResourceGroupName ${{ vars.RESOURCE_GROUP }} `
