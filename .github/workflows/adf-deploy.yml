@@ -45,8 +45,8 @@ jobs:
           pwsh: true
           inlineScript: |
             ./source/.github/scripts/PrePostDeploymentScript.Ver2.ps1 `
-              -ArmTemplate "ARMTemplateForFactory.json" `
-              -ArmTemplateParameters "ARMTemplateParametersForFactory.json" `
+              -ArmTemplate "dev-ci-cd-demo-adf-y8/ARMTemplateForFactory.json" `
+              -ArmTemplateParameters "dev-ci-cd-demo-adf-y8/ARMTemplateParametersForFactory.json" `
               -ResourceGroupName "test-ci-cd-demo-rg" `
               -DataFactoryName "test-ci-cd-demo-adf-y8" `
               -PreDeployment $true `
@@ -57,8 +57,10 @@ jobs:
         with:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: test-ci-cd-demo-rg
-          template: ARMTemplateForFactory.json
-          parameters: ARMTemplateParametersForFactory.json
+          template: dev-ci-cd-demo-adf-y8/ARMTemplateForFactory.json
+          parameters: > 
+              dev-ci-cd-demo-adf-y8/ARMTemplateParametersForFactory.json
+              factoryName=test-ci-cd-demo-adf-y8
           deploymentMode: Incremental
 
       - name: Post-deployment
@@ -68,8 +70,8 @@ jobs:
           pwsh: true
           inlineScript: |
             ./source/.github/scripts/PrePostDeploymentScript.Ver2.ps1 `
-              -ArmTemplate "ARMTemplateForFactory.json" `
-              -ArmTemplateParameters "ARMTemplateParametersForFactory.json" `
+              -ArmTemplate "dev-ci-cd-demo-adf-y8/ARMTemplateForFactory.json" `
+              -ArmTemplateParameters "dev-ci-cd-demo-adf-y8/ARMTemplateParametersForFactory.json" `
               -ResourceGroupName "test-ci-cd-demo-rg" `
               -DataFactoryName "test-ci-cd-demo-adf-y8" `
               -PreDeployment $false `
