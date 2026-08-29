@@ -6,7 +6,7 @@ on:
       - adf_publish
 
   workflow_dispatch:
-  
+
 permissions:
   id-token: write
   contents: read
