@@ -25,6 +25,12 @@ jobs:
         with:
           ref: adf_publish
 
+      - name: Checkout main for deployment scripts
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: source
+
       - name: Azure Login
         uses: azure/login@v3
         with:
@@ -38,7 +44,7 @@ jobs:
           azPSVersion: latest
           pwsh: true
           inlineScript: |
-            ./.github/scripts/PrePostDeploymentScript.Ver2.ps1 `
+            ./source/.github/scripts/PrePostDeploymentScript.Ver2.ps1 `
               -ArmTemplate "ARMTemplateForFactory.json" `
               -ArmTemplateParameters "ARMTemplateParametersForFactory.json" `
               -ResourceGroupName "test-ci-cd-demo-rg" `
@@ -61,10 +67,10 @@ jobs:
           azPSVersion: latest
           pwsh: true
           inlineScript: |
-            ./.github/scripts/PrePostDeploymentScript.Ver2.ps1 `
+            ./source/.github/scripts/PrePostDeploymentScript.Ver2.ps1 `
               -ArmTemplate "ARMTemplateForFactory.json" `
               -ArmTemplateParameters "ARMTemplateParametersForFactory.json" `
               -ResourceGroupName "test-ci-cd-demo-rg" `
               -DataFactoryName "test-ci-cd-demo-adf-y8" `
-            -PreDeployment $false
-            -DeleteDeployment $true
+              -PreDeployment $false `
+              -DeleteDeployment $true
