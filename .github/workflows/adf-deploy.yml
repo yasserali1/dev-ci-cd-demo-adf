@@ -6,7 +6,7 @@ on:
       - adf_publish
 
   workflow_dispatch:
-  
+
 permissions:
   id-token: write
   contents: read
@@ -37,15 +37,14 @@ jobs:
         with:
           azPSVersion: latest
           pwsh: true
-          scriptType: filePath
-          scriptPath: .github/scripts/PrePostDeploymentScript.Ver2.ps1
-          scriptArguments: >
-            -ArmTemplate "ARMTemplateForFactory.json"
-            -ArmTemplateParameters "ARMTemplateParametersForFactory.json"
-            -ResourceGroupName "test-ci-cd-demo-rg"
-            -DataFactoryName "adf_testing"
-            -PreDeployment $true
-            -DeleteDeployment $false
+          inlineScript: |
+            ./.github/scripts/PrePostDeploymentScript.Ver2.ps1 `
+              -ArmTemplate "ARMTemplateForFactory.json" `
+              -ArmTemplateParameters "ARMTemplateParametersForFactory.json" `
+              -ResourceGroupName "test-ci-cd-demo-rg" `
+              -DataFactoryName "adf_testing" `
+              -PreDeployment $true `
+              -DeleteDeployment $false
 
       - name: Deploy ARM template
         uses: azure/arm-deploy@v2
@@ -61,12 +60,11 @@ jobs:
         with:
           azPSVersion: latest
           pwsh: true
-          scriptType: filePath
-          scriptPath: .github/scripts/PrePostDeploymentScript.Ver2.ps1
-          scriptArguments: >
-            -ArmTemplate "ARMTemplateForFactory.json"
-            -ArmTemplateParameters "ARMTemplateParametersForFactory.json"
-            -ResourceGroupName "test-ci-cd-demo-rg"
-            -DataFactoryName "adf_testing"
+          inlineScript: |
+            ./.github/scripts/PrePostDeploymentScript.Ver2.ps1 `
+              -ArmTemplate "ARMTemplateForFactory.json" `
+              -ArmTemplateParameters "ARMTemplateParametersForFactory.json" `
+              -ResourceGroupName "test-ci-cd-demo-rg" `
+              -DataFactoryName "adf_testing" `
             -PreDeployment $false
             -DeleteDeployment $true
