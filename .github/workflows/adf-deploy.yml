@@ -12,6 +12,10 @@ permissions:
   contents: read
 
 jobs:
+
+  # =========================
+  # TESTING
+  # =========================
   deploy-testing:
     name: Deploy ADF to Testing
     runs-on: ubuntu-latest
@@ -75,5 +79,76 @@ jobs:
               -ArmTemplateParameters "dev-ci-cd-demo-adf-y8/ARMTemplateParametersForFactory.json" `
               -ResourceGroupName "test-ci-cd-demo-rg" `
               -DataFactoryName "test-ci-cd-demo-adf-y8" `
+              -PreDeployment $false `
+              -DeleteDeployment $true
+
+  # =========================
+  # PRODUCTION
+  # =========================
+  deploy-production:
+    name: Deploy ADF to Production
+    runs-on: ubuntu-latest
+
+    needs: deploy-testing
+
+    environment: production
+
+    steps:
+
+      - name: Checkout adf_publish
+        uses: actions/checkout@v4
+        with:
+          ref: adf_publish
+
+      - name: Checkout main for deployment scripts
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: source
+
+      - name: Azure Login
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+
+      - name: Pre-deployment
+        uses: azure/powershell@v3
+        with:
+          azPSVersion: latest
+          pwsh: true
+          inlineScript: |
+            ./source/.github/scripts/PrePostDeploymentScript.Ver2.ps1 `
+              -ArmTemplate "dev-ci-cd-demo-adf-y8/ARMTemplateForFactory.json" `
+              -ArmTemplateParameters "dev-ci-cd-demo-adf-y8/ARMTemplateParametersForFactory.json" `
+              -ResourceGroupName "prod-ci-cd-demo-rg" `
+              -DataFactoryName "prod-ci-cd-demo-adf-y8" `
+              -PreDeployment $true `
+              -DeleteDeployment $false
+
+      - name: Deploy ARM template
+        uses: azure/arm-deploy@v2
+        with:
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          resourceGroupName: prod-ci-cd-demo-rg
+          template: dev-ci-cd-demo-adf-y8/ARMTemplateForFactory.json
+          parameters: >
+            dev-ci-cd-demo-adf-y8/ARMTemplateParametersForFactory.json
+            factoryName=prod-ci-cd-demo-adf-y8
+          deploymentMode: Incremental
+
+      - name: Post-deployment
+        uses: azure/powershell@v3
+        with:
+          azPSVersion: latest
+          pwsh: true
+          inlineScript: |
+            ./source/.github/scripts/PrePostDeploymentScript.Ver2.ps1 `
+              -ArmTemplate "dev-ci-cd-demo-adf-y8/ARMTemplateForFactory.json" `
+              -ArmTemplateParameters "dev-ci-cd-demo-adf-y8/ARMTemplateParametersForFactory.json" `
+              -ResourceGroupName "prod-ci-cd-demo-rg" `
+              -DataFactoryName "prod-ci-cd-demo-adf-y8" `
               -PreDeployment $false `
               -DeleteDeployment $true
