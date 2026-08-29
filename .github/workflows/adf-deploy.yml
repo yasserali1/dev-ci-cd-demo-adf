@@ -36,7 +36,7 @@ jobs:
           azPSVersion: latest
           pwsh: true
           scriptType: filePath
-          scriptPath: scripts/PrePostDeploymentScript.Ver2.ps1
+          scriptPath: .github/scripts/PrePostDeploymentScript.Ver2.ps1
           scriptArguments: >
             -ArmTemplate "ARMTemplateForFactory.json"
             -ArmTemplateParameters "ARMTemplateParametersForFactory.json"
@@ -60,7 +60,7 @@ jobs:
           azPSVersion: latest
           pwsh: true
           scriptType: filePath
-          scriptPath: scripts/PrePostDeploymentScript.Ver2.ps1
+          scriptPath: .github/scripts/PrePostDeploymentScript.Ver2.ps1
           scriptArguments: >
             -ArmTemplate "ARMTemplateForFactory.json"
             -ArmTemplateParameters "ARMTemplateParametersForFactory.json"
