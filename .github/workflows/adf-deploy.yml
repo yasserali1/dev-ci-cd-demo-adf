@@ -37,6 +37,7 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
 
       - name: Pre-deployment
         uses: azure/powershell@v3
@@ -58,9 +59,9 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: test-ci-cd-demo-rg
           template: dev-ci-cd-demo-adf-y8/ARMTemplateForFactory.json
-          parameters: > 
-              dev-ci-cd-demo-adf-y8/ARMTemplateParametersForFactory.json
-              factoryName=test-ci-cd-demo-adf-y8
+          parameters: >
+            dev-ci-cd-demo-adf-y8/ARMTemplateParametersForFactory.json
+            factoryName=test-ci-cd-demo-adf-y8
           deploymentMode: Incremental
 
       - name: Post-deployment
