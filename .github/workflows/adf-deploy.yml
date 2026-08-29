@@ -42,7 +42,7 @@ jobs:
               -ArmTemplate "ARMTemplateForFactory.json" `
               -ArmTemplateParameters "ARMTemplateParametersForFactory.json" `
               -ResourceGroupName "test-ci-cd-demo-rg" `
-              -DataFactoryName "adf_testing" `
+              -DataFactoryName "test-ci-cd-demo-adf-y8" `
               -PreDeployment $true `
               -DeleteDeployment $false
 
@@ -65,6 +65,6 @@ jobs:
               -ArmTemplate "ARMTemplateForFactory.json" `
               -ArmTemplateParameters "ARMTemplateParametersForFactory.json" `
               -ResourceGroupName "test-ci-cd-demo-rg" `
-              -DataFactoryName "adf_testing" `
+              -DataFactoryName "test-ci-cd-demo-adf-y8" `
             -PreDeployment $false
             -DeleteDeployment $true
