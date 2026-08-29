@@ -52,8 +52,8 @@ jobs:
             ./source/.github/scripts/PrePostDeploymentScript.Ver2.ps1 `
               -ArmTemplate "dev-ci-cd-demo-adf-y8/ARMTemplateForFactory.json" `
               -ArmTemplateParameters "dev-ci-cd-demo-adf-y8/ARMTemplateParametersForFactory.json" `
-              -ResourceGroupName "test-ci-cd-demo-rg" `
-              -DataFactoryName "test-ci-cd-demo-adf-y8" `
+              -ResourceGroupName ${{ vars.RESOURCE_GROUP }} `
+              -DataFactoryName ${{ vars.DATA_FACTORY }} `
               -PreDeployment $true `
               -DeleteDeployment $false
 
@@ -61,11 +61,11 @@ jobs:
         uses: azure/arm-deploy@v2
         with:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          resourceGroupName: test-ci-cd-demo-rg
+          resourceGroupName: ${{ vars.RESOURCE_GROUP }}
           template: dev-ci-cd-demo-adf-y8/ARMTemplateForFactory.json
           parameters: >
             dev-ci-cd-demo-adf-y8/ARMTemplateParametersForFactory.json
-            factoryName=test-ci-cd-demo-adf-y8
+            factoryName=${{ vars.DATA_FACTORY }}
           deploymentMode: Incremental
 
       - name: Post-deployment
@@ -77,8 +77,8 @@ jobs:
             ./source/.github/scripts/PrePostDeploymentScript.Ver2.ps1 `
               -ArmTemplate "dev-ci-cd-demo-adf-y8/ARMTemplateForFactory.json" `
               -ArmTemplateParameters "dev-ci-cd-demo-adf-y8/ARMTemplateParametersForFactory.json" `
-              -ResourceGroupName "test-ci-cd-demo-rg" `
-              -DataFactoryName "test-ci-cd-demo-adf-y8" `
+              -ResourceGroupName ${{ vars.RESOURCE_GROUP }} `
+              -DataFactoryName ${{ vars.DATA_FACTORY }} `
               -PreDeployment $false `
               -DeleteDeployment $true
 
@@ -123,8 +123,8 @@ jobs:
             ./source/.github/scripts/PrePostDeploymentScript.Ver2.ps1 `
               -ArmTemplate "dev-ci-cd-demo-adf-y8/ARMTemplateForFactory.json" `
               -ArmTemplateParameters "dev-ci-cd-demo-adf-y8/ARMTemplateParametersForFactory.json" `
-              -ResourceGroupName "prod-ci-cd-demo-rg" `
-              -DataFactoryName "prod-ci-cd-demo-adf-y8" `
+              -ResourceGroupName ${{ vars.RESOURCE_GROUP }} `
+              -DataFactoryName ${{ vars.DATA_FACTORY }} `
               -PreDeployment $true `
               -DeleteDeployment $false
 
@@ -132,11 +132,11 @@ jobs:
         uses: azure/arm-deploy@v2
         with:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          resourceGroupName: prod-ci-cd-demo-rg
+          resourceGroupName: ${{ vars.RESOURCE_GROUP }}
           template: dev-ci-cd-demo-adf-y8/ARMTemplateForFactory.json
           parameters: >
             dev-ci-cd-demo-adf-y8/ARMTemplateParametersForFactory.json
-            factoryName=prod-ci-cd-demo-adf-y8
+            factoryName=${{ vars.DATA_FACTORY }}
           deploymentMode: Incremental
 
       - name: Post-deployment
@@ -148,7 +148,7 @@ jobs:
             ./source/.github/scripts/PrePostDeploymentScript.Ver2.ps1 `
               -ArmTemplate "dev-ci-cd-demo-adf-y8/ARMTemplateForFactory.json" `
               -ArmTemplateParameters "dev-ci-cd-demo-adf-y8/ARMTemplateParametersForFactory.json" `
-              -ResourceGroupName "prod-ci-cd-demo-rg" `
-              -DataFactoryName "prod-ci-cd-demo-adf-y8" `
+              -ResourceGroupName ${{ vars.RESOURCE_GROUP }} `
+              -DataFactoryName ${{ vars.DATA_FACTORY }} `
               -PreDeployment $false `
               -DeleteDeployment $true
