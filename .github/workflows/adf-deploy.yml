@@ -67,9 +67,9 @@ jobs:
         with:
           name: ArmTemplates # Artifact name
 
-      # # Display the structure of the downloaded files for debugging purposes
-      # - name: Display structure of downloaded files
-      #   run: ls -R
+      # Display the structure of the downloaded files for debugging purposes
+      - name: Display structure of downloaded files
+        run: ls -R
 
       # - name: Checkout adf_publish
       #   uses: actions/checkout@v4
