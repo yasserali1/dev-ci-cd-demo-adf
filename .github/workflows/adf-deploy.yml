@@ -1,9 +1,9 @@
-name: Deploy ADF
+name: Build & Deploy ADF CI/CD
 
 on:
   push:
     branches:
-      - adf_publish
+      - main
 
   workflow_dispatch:
 
@@ -14,20 +14,67 @@ permissions:
 jobs:
 
   # =========================
-  # TESTING
+  # BUILD
   # =========================
-  deploy-testing:
-    name: Deploy ADF to Testing
-    runs-on: ubuntu-latest
 
-    environment: testing
+  build:
+    runs-on: ubuntu-latest
+    environment: dev
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 'lts/*'
+
+    - name: Install npm packages
+      run: npm install
+      working-directory: ${{github.workspace}}/build # replace with the package.json folder
+
+    - name: Validate Data Factory resources
+      run: npm run build validate ${{github.workspace}} /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/${{ vars.RESOURCE_GROUP }}/providers/Microsoft.DataFactory/factories/${{ vars.DATA_FACTORY }}
+      working-directory: ${{github.workspace}}/build # replace with the package.json folder
+
+    - name: Validate and Generate ARM template
+      run: npm run build export ${{github.workspace}} /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/${{ vars.RESOURCE_GROUP }}/providers/Microsoft.DataFactory/factories/${{ vars.DATA_FACTORY }} "ArmTemplate"
+      # For using preview that allows you to only stop/start triggers that are modified, uncomment the below line and make sure the package.json contains the build-preview command.
+      # run: npm run build-preview export ./<Root-folder-from-Git-configuration-settings-in-ADF> /subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e/resourceGroups/GartnerMQ2021/providers/Microsoft.DataFactory/factories/Dev-GartnerMQ2021-DataFactory "ArmTemplate"
+      working-directory: ${{github.workspace}}/build # replace with the package.json folder
+
+    - name: Upload ARM template artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ArmTemplates
+        path: ${{github.workspace}}/build/ArmTemplate # replace with generated ARM template folder
+
+# =========================
+  # DEVELOPMENT
+  # =========================
+  deploy-dev:
+    name: Deploy ADF to Dev
+    needs: build
+    runs-on: ubuntu-latest
+    environment: dev
 
     steps:
 
-      - name: Checkout adf_publish
-        uses: actions/checkout@v4
+      # we 1st download the previously uploaded artifact so we can leverage it later in the release job     
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v4
         with:
-          ref: adf_publish
+          name: ArmTemplates # Artifact name
+
+      # # Display the structure of the downloaded files for debugging purposes
+      # - name: Display structure of downloaded files
+      #   run: ls -R
+
+      # - name: Checkout adf_publish
+      #   uses: actions/checkout@v4
+      #   with:
+      #     ref: adf_publish
 
       - name: Azure Login
         uses: azure/login@v3
@@ -43,9 +90,9 @@ jobs:
           azPSVersion: latest
           pwsh: true
           inlineScript: |
-            .github/scripts/PrePostDeploymentScript.Ver2.ps1 `
-              -ArmTemplate "dev-ci-cd-demo-adf-y8/ARMTemplateForFactory.json" `
-              -ArmTemplateParameters "dev-ci-cd-demo-adf-y8/ARMTemplateParametersForFactory.json" `
+            ./PrePostDeploymentScript.Ver2.ps1 `
+              -ArmTemplate "./ARMTemplateForFactory.json" `
+              -ArmTemplateParameters "./ARMTemplateParametersForFactory.json" `
               -ResourceGroupName ${{ vars.RESOURCE_GROUP }} `
               -DataFactoryName ${{ vars.DATA_FACTORY }} `
               -PreDeployment $true `
@@ -56,9 +103,9 @@ jobs:
         with:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: ${{ vars.RESOURCE_GROUP }}
-          template: dev-ci-cd-demo-adf-y8/ARMTemplateForFactory.json
+          template: ./ARMTemplateForFactory.json
           parameters: >
-            dev-ci-cd-demo-adf-y8/ARMTemplateParametersForFactory.json
+            ./ARMTemplateParametersForFactory.json
             factoryName=${{ vars.DATA_FACTORY }}
           deploymentMode: Incremental
 
@@ -68,9 +115,82 @@ jobs:
           azPSVersion: latest
           pwsh: true
           inlineScript: |
-            .github/scripts/PrePostDeploymentScript.Ver2.ps1 `
-              -ArmTemplate "dev-ci-cd-demo-adf-y8/ARMTemplateForFactory.json" `
-              -ArmTemplateParameters "dev-ci-cd-demo-adf-y8/ARMTemplateParametersForFactory.json" `
+            ./PrePostDeploymentScript.Ver2.ps1 `
+              -ArmTemplate "./ARMTemplateForFactory.json" `
+              -ArmTemplateParameters "./ARMTemplateParametersForFactory.json" `
+              -ResourceGroupName ${{ vars.RESOURCE_GROUP }} `
+              -DataFactoryName ${{ vars.DATA_FACTORY }} `
+              -PreDeployment $false `
+              -DeleteDeployment $true
+
+  # =========================
+  # TESTING
+  # =========================
+  deploy-testing:
+    name: Deploy ADF to Testing
+    needs: deploy-dev
+    runs-on: ubuntu-latest
+    environment: testing
+
+    steps:
+
+      # we 1st download the previously uploaded artifact so we can leverage it later in the release job     
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ArmTemplates # Artifact name
+
+      # # Display the structure of the downloaded files for debugging purposes
+      # - name: Display structure of downloaded files
+      #   run: ls -R
+
+      # - name: Checkout adf_publish
+      #   uses: actions/checkout@v4
+      #   with:
+      #     ref: adf_publish
+
+      - name: Azure Login
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+
+      - name: Pre-deployment
+        uses: azure/powershell@v3
+        with:
+          azPSVersion: latest
+          pwsh: true
+          inlineScript: |
+            ./PrePostDeploymentScript.Ver2.ps1 `
+              -ArmTemplate "./ARMTemplateForFactory.json" `
+              -ArmTemplateParameters "./ARMTemplateParametersForFactory.json" `
+              -ResourceGroupName ${{ vars.RESOURCE_GROUP }} `
+              -DataFactoryName ${{ vars.DATA_FACTORY }} `
+              -PreDeployment $true `
+              -DeleteDeployment $false
+
+      - name: Deploy ARM template
+        uses: azure/arm-deploy@v2
+        with:
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          resourceGroupName: ${{ vars.RESOURCE_GROUP }}
+          template: ./ARMTemplateForFactory.json
+          parameters: >
+            ./ARMTemplateParametersForFactory.json
+            factoryName=${{ vars.DATA_FACTORY }}
+          deploymentMode: Incremental
+
+      - name: Post-deployment
+        uses: azure/powershell@v3
+        with:
+          azPSVersion: latest
+          pwsh: true
+          inlineScript: |
+            ./PrePostDeploymentScript.Ver2.ps1 `
+              -ArmTemplate "./ARMTemplateForFactory.json" `
+              -ArmTemplateParameters "./ARMTemplateParametersForFactory.json" `
               -ResourceGroupName ${{ vars.RESOURCE_GROUP }} `
               -DataFactoryName ${{ vars.DATA_FACTORY }} `
               -PreDeployment $false `
@@ -82,17 +202,25 @@ jobs:
   deploy-production:
     name: Deploy ADF to Production
     runs-on: ubuntu-latest
-
     needs: deploy-testing
-
     environment: production
 
     steps:
 
-      - name: Checkout adf_publish
-        uses: actions/checkout@v4
+      # we 1st download the previously uploaded artifact so we can leverage it later in the release job     
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v4
         with:
-          ref: adf_publish
+          name: ArmTemplates # Artifact name
+
+      # # Display the structure of the downloaded files for debugging purposes
+      # - name: Display structure of downloaded files
+      #   run: ls -R
+
+      # - name: Checkout adf_publish
+      #   uses: actions/checkout@v4
+      #   with:
+      #     ref: adf_publish
 
       - name: Azure Login
         uses: azure/login@v3
@@ -108,9 +236,9 @@ jobs:
           azPSVersion: latest
           pwsh: true
           inlineScript: |
-            .github/scripts/PrePostDeploymentScript.Ver2.ps1 `
-              -ArmTemplate "dev-ci-cd-demo-adf-y8/ARMTemplateForFactory.json" `
-              -ArmTemplateParameters "dev-ci-cd-demo-adf-y8/ARMTemplateParametersForFactory.json" `
+            ./PrePostDeploymentScript.Ver2.ps1 `
+              -ArmTemplate "./ARMTemplateForFactory.json" `
+              -ArmTemplateParameters "./ARMTemplateParametersForFactory.json" `
               -ResourceGroupName ${{ vars.RESOURCE_GROUP }} `
               -DataFactoryName ${{ vars.DATA_FACTORY }} `
               -PreDeployment $true `
@@ -121,9 +249,9 @@ jobs:
         with:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: ${{ vars.RESOURCE_GROUP }}
-          template: dev-ci-cd-demo-adf-y8/ARMTemplateForFactory.json
+          template: ./ARMTemplateForFactory.json
           parameters: >
-            dev-ci-cd-demo-adf-y8/ARMTemplateParametersForFactory.json
+            ./ARMTemplateParametersForFactory.json
             factoryName=${{ vars.DATA_FACTORY }}
           deploymentMode: Incremental
 
@@ -133,9 +261,9 @@ jobs:
           azPSVersion: latest
           pwsh: true
           inlineScript: |
-            .github/scripts/PrePostDeploymentScript.Ver2.ps1 `
-              -ArmTemplate "dev-ci-cd-demo-adf-y8/ARMTemplateForFactory.json" `
-              -ArmTemplateParameters "dev-ci-cd-demo-adf-y8/ARMTemplateParametersForFactory.json" `
+            ./PrePostDeploymentScript.Ver2.ps1 `
+              -ArmTemplate "./ARMTemplateForFactory.json" `
+              -ArmTemplateParameters "./ARMTemplateParametersForFactory.json" `
               -ResourceGroupName ${{ vars.RESOURCE_GROUP }} `
               -DataFactoryName ${{ vars.DATA_FACTORY }} `
               -PreDeployment $false `
