@@ -90,7 +90,7 @@ jobs:
           azPSVersion: latest
           pwsh: true
           inlineScript: |
-            ./PrePostDeploymentScript.Ver2.ps1 `
+            ./PrePostDeploymentScript.ps1 `
               -ArmTemplate "./ARMTemplateForFactory.json" `
               -ArmTemplateParameters "./ARMTemplateParametersForFactory.json" `
               -ResourceGroupName ${{ vars.RESOURCE_GROUP }} `
@@ -115,7 +115,7 @@ jobs:
           azPSVersion: latest
           pwsh: true
           inlineScript: |
-            ./PrePostDeploymentScript.Ver2.ps1 `
+            ./PrePostDeploymentScript.ps1 `
               -ArmTemplate "./ARMTemplateForFactory.json" `
               -ArmTemplateParameters "./ARMTemplateParametersForFactory.json" `
               -ResourceGroupName ${{ vars.RESOURCE_GROUP }} `
@@ -163,7 +163,7 @@ jobs:
           azPSVersion: latest
           pwsh: true
           inlineScript: |
-            ./PrePostDeploymentScript.Ver2.ps1 `
+            ./PrePostDeploymentScript.ps1 `
               -ArmTemplate "./ARMTemplateForFactory.json" `
               -ArmTemplateParameters "./ARMTemplateParametersForFactory.json" `
               -ResourceGroupName ${{ vars.RESOURCE_GROUP }} `
@@ -188,7 +188,7 @@ jobs:
           azPSVersion: latest
           pwsh: true
           inlineScript: |
-            ./PrePostDeploymentScript.Ver2.ps1 `
+            ./PrePostDeploymentScript.ps1 `
               -ArmTemplate "./ARMTemplateForFactory.json" `
               -ArmTemplateParameters "./ARMTemplateParametersForFactory.json" `
               -ResourceGroupName ${{ vars.RESOURCE_GROUP }} `
@@ -236,7 +236,7 @@ jobs:
           azPSVersion: latest
           pwsh: true
           inlineScript: |
-            ./PrePostDeploymentScript.Ver2.ps1 `
+            ./PrePostDeploymentScript.ps1 `
               -ArmTemplate "./ARMTemplateForFactory.json" `
               -ArmTemplateParameters "./ARMTemplateParametersForFactory.json" `
               -ResourceGroupName ${{ vars.RESOURCE_GROUP }} `
@@ -261,7 +261,7 @@ jobs:
           azPSVersion: latest
           pwsh: true
           inlineScript: |
-            ./PrePostDeploymentScript.Ver2.ps1 `
+            ./PrePostDeploymentScript.ps1 `
               -ArmTemplate "./ARMTemplateForFactory.json" `
               -ArmTemplateParameters "./ARMTemplateParametersForFactory.json" `
               -ResourceGroupName ${{ vars.RESOURCE_GROUP }} `
